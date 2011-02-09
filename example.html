@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>Tainting Example</title>
+<script type="text/javascript" src="basic-taint.js"></script>
+<script type="text/javascript" src="tainting.js"></script>
+<script type="text/javascript">
+var validate = function(str){
+  return str;
+}
+var syncf = function(str){
+  document.write("First Name:"+ str+"<br/>");
+}
+var syncl = function(str){
+  document.write("Last Name:"+ str+"<br/>");
+}
+var tainting = new Taint(["fname","lname"],[validate,validate],[syncf,syncl]);
+function onsub(){
+  var fname = tainting.get("fname");
+  var lname = tainting.get("lname");
+  document.writeln("Regular Test: "+fname+" Tainted:"+fname.isTainted()+"<br/>");
+  var upper = fname.toUpperCase();
+  var str=new String("The rain in SPAIN stays mainly in the plain");
+  str.taint();
+  var a = str.match(/ain/gi)
+  for(var i = 0, l = a.length; i < l; i++){
+    document.writeln("str.match Test: "+ a[i] +" Tainted:"+a[i].isTainted()+"<br/>");
+  }
+  document.writeln("Upercase Test: "+upper+" Tainted:"+upper.isTainted()+"<br/>");
+  var name = fname.concat(" ").concat(lname);
+  document.writeln("Concat Test: "+ name + " Tainted:" + name.isTainted()+"<br/>");
+  var name2 = fname + " " + lname;
+  document.writeln("Simple + Test: "+ name2 + " Tainted:Error name2.isTainted is not a function.<br/>");
+  fname = tainting.runValidation("fname", fname);
+  lname = tainting.runValidation("lname", lname);
+  tainting.runSync("fname",fname);
+  tainting.runSync("lname",lname);
+  //return false;
+}
+</script>
+</head>
+<body>
+<h1>Tainting Example</h1>
+<form id="mainForm">
+First Name:<input type="text" size="12" maxlength="36" id="fname"><br/>
+Last Name:<input type="text" size="12" maxlength="36" id="lname"><br/>
+<input type="button" value="Post!" onclick="onsub();">
+</form>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<html>
+<head>
+<script type="text/javascript" src="basic-taint.js"></script>
+<script type="text/javascript" src="tainting2.js"></script>
+<script type="text/javascript" src="v8benchmark/base.js"></script>
+<script type="text/javascript" src="v8benchmark/richards.js"></script>
+<script type="text/javascript" src="v8benchmark/deltablue.js"></script>
+<script type="text/javascript" src="v8benchmark/crypto.js"></script>
+<script type="text/javascript" src="v8benchmark/raytrace.js"></script>
+<script type="text/javascript" src="v8benchmark/earley-boyer.js"></script>
+<script type="text/javascript" src="v8benchmark/regexp.js"></script>
+<script type="text/javascript" src="v8benchmark/splay.js"></script>
+<script type="text/javascript">
+var completed = 0;
+var benchmarks = BenchmarkSuite.CountBenchmarks();
+var success = true;
+
+function ShowProgress(name) {
+  var status = document.getElementById("status");
+  var percentage = ((++completed) / benchmarks) * 100;
+  status.innerHTML = "Running: " + Math.round(percentage) + "% completed.";
+}
+
+
+function AddResult(name, result) {
+  var text = name + ': ' + result;
+  var results = document.getElementById("results");
+  results.innerHTML += (text + "<br>");
+}
+
+
+function AddError(name, error) {
+  AddResult(name, '<b>error<\/b>');
+  success = false;
+}
+
+
+function AddScore(score) {
+  var status = document.getElementById("status");
+  if (success) {
+    status.innerHTML = "Score: " + score;
+  }
+}
+
+
+function Run() {
+  BenchmarkSuite.RunSuites({ NotifyStep: ShowProgress,
+                             NotifyError: AddError,
+                             NotifyResult: AddResult,
+                             NotifyScore: AddScore }); 
+}
+function Load() {
+  var version = BenchmarkSuite.version; 
+  setTimeout(Run, 200);
+}
+</script>
+</head>
+<body onload="Load();">
+<div id="status"></div>
+<div id="results"></div>
+</body>
+</html>

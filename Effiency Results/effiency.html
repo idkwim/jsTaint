@@ -1,0 +1,171 @@
+<html>
+<head>
+<script type="text/javascript" src="basic-taint.js"></script>
+<script type="text/javascript" src="tainting2.js"></script>
+<script type="text/javascript" src="v8benchmark/base.js"></script>
+<script type="text/javascript" src="v8benchmark/richards.js"></script>
+<script type="text/javascript" src="v8benchmark/deltablue.js"></script>
+<script type="text/javascript" src="v8benchmark/crypto.js"></script>
+<script type="text/javascript" src="v8benchmark/raytrace.js"></script>
+<script type="text/javascript" src="v8benchmark/earley-boyer.js"></script>
+<script type="text/javascript" src="v8benchmark/regexp.js"></script>
+<script type="text/javascript" src="v8benchmark/splay.js"></script>
+<script type="text/javascript">
+var completed = 0;
+var benchmarks = BenchmarkSuite.CountBenchmarks();
+var success = true;
+
+function ShowProgress(name) {
+  var status = document.getElementById("status");
+  var percentage = ((++completed) / benchmarks) * 100;
+  status.innerHTML = "Running: " + Math.round(percentage) + "% completed.";
+}
+
+
+function AddResult(name, result) {
+  var text = name + ': ' + result;
+  var results = document.getElementById("results");
+  results.innerHTML += (text + "<br>");
+}
+
+
+function AddError(name, error) {
+  AddResult(name, '<b>error<\/b>');
+  success = false;
+}
+
+
+function AddScore(score) {
+  var status = document.getElementById("status");
+  if (success) {
+    status.innerHTML = "Score: " + score;
+  }
+}
+
+
+function Run() {
+  BenchmarkSuite.RunSuites({ NotifyStep: ShowProgress,
+      NotifyError: AddError,
+      NotifyResult: AddResult,
+  NotifyScore: AddScore }); 
+}
+function untaintedTest(){
+  var a = new Array();
+  for(var k = 0; k < 10; k++){
+    var start = new Date().getTime();
+    var str = new String("ABCDEFGHIJKLMNOPQR");
+    //str.taint();
+    for(var i = 0; i < 100000; i++){
+      str.toLowerCase();
+    }
+    a[k] = new Date().getTime() - start;
+  }
+  var total = 0;
+  for(var c = 0, l = a.length; c < l; c++)
+    total += a[c];
+  document.getElementById("usum").innerHTML = "Sum: "+total;
+  var avg = (total/10);
+  document.getElementById("uavg").innerHTML = "Average: "+avg;
+  total = 0;
+  for(var c = 0, l = a.length; c < l; c++)
+    total += Math.pow(a[c] - avg,2);
+  document.getElementById("ustdev").innerHTML = "St-DEV: "+ Math.sqrt(total/9);
+}
+function taintedTest(){
+  try{
+    var a = new Array();
+    for(var k = 0; k < 10; k++){
+      var start = new Date().getTime();
+      var str = new String("ABCDEFGHIJKLMNOPQR");
+      str.taint();
+      for(var i = 0; i < 100000; i++){
+        str.toLowerCase();
+      }
+      a[k] = new Date().getTime() - start;
+    }
+    var total = 0;
+    for(var c = 0, l = a.length; c < l; c++)
+      total += a[c];
+    document.getElementById("sum").innerHTML = "Sum: "+total;
+    var avg = (total/10);
+    document.getElementById("avg").innerHTML = "Average: "+avg;
+    total = 0;
+    for(var c = 0, l = a.length; c < l; c++)
+      total += Math.pow(a[c] - avg,2);
+    document.getElementById("stdev").innerHTML = "St-DEV: "+ Math.sqrt(total/9);
+  }catch(err){
+    document.getElementById("sum").innerHTML = "Sum: Test Not Run";
+    document.getElementById("avg").innerHTML = "Average: Test Not Run";
+    document.getElementById("stdev").innerHTML = "St-DEV: Test Not Run";
+  }
+}
+function concatTest(){
+  var a = new Array();
+  for(var k = 0; k < 10; k++){
+    var start = new Date().getTime();
+    var str = new String(Math.floor(Math.random()*10));
+    for(var i = 0; i < 100000; i++){
+      str.concat(Math.floor(Math.random()*10));
+    }
+    a[k] = new Date().getTime() - start;
+  }
+  var total = 0;
+  for(var c = 0, l = a.length; c < l; c++)
+    total += a[c];
+  document.getElementById("csum").innerHTML = "Sum: "+total;
+  var avg = (total/10);
+  document.getElementById("cavg").innerHTML = "Average: "+avg;
+  total = 0;
+  for(var c = 0, l = a.length; c < l; c++)
+    total += Math.pow(a[c] - avg,2);
+  document.getElementById("cstdev").innerHTML = "St-DEV: "+ Math.sqrt(total/9);
+}
+function Load() {
+  untaintedTest();
+  taintedTest();
+  concatTest();
+  var version = BenchmarkSuite.version;
+  setTimeout(Run, 200);
+}
+</script>
+<script type="text/javascript">
+</script>
+</head>
+<body onload="Load();">
+<h1>Dynamic Taint Library Preformance Tests</h1>
+<h3>toLowerCase - untainted String test</h3>
+<p>Time in milliseconds for String.toLowerCase to run 100,000 times with the initial string untainted. The String is predefined. I repeated this test 10 times and found the average and the standard deviation. Lower time means better preformance.</p>
+<div id="usum"></div>
+<div id="uavg"></div>
+<div id="ustdev"></div>
+<h3>toLowerCase - tainted String test</h3>
+<p>Time in milliseconds for String.toLowerCase to run 100,000 times with the initial string tainted. The String is predefined. I repeated this test 10 times and found the average and the standard deviation. Lower time means better preformance.</p>
+<div id="sum"></div>
+<div id="avg"></div>
+<div id="stdev"></div>
+<h3>concat - tainted String test</h3>
+<p>In this test, I compared how long it took String.concat to run for each implementation. I chose the String.concat function because that is heavily used in many websites. I started with a string initialized with a value of a single random digit. I ran the function String.concat 100,000 times with a single random digit generated on the spot. I repeated this test 10 times and found the average and the standard deviation. Lower time means better preformance. (Time in Milliseconds)</p>
+<div id="csum"></div>
+<div id="cavg"></div>
+<div id="cstdev"></div>
+<h3>Google V8 Benchmarks</h3>
+<p>This page contains a suite of pure JavaScript benchmarks that we have
+used to tune V8. The final score is computed as the geometric mean of
+the individual results to make it independent of the running times of
+the individual benchmarks and of a reference system (score
+100). Higher scores means better performance: <em>Bigger is better!</em></p>
+<ul> 
+<li><b>Richards</b><br>OS kernel simulation benchmark, originally written in BCPL by Martin Richards (<i>539 lines</i>).</li> 
+<li><b>DeltaBlue</b><br>One-way constraint solver, originally written in Smalltalk by John Maloney and Mario Wolczko (<i>880 lines</i>).</li> 
+<li><b>Crypto</b><br>Encryption and decryption benchmark based on code by Tom Wu (<i>1698 lines</i>).</li> 
+<li><b>RayTrace</b><br>Ray tracer benchmark based on code by <a href="http://flog.co.nz/">Adam Burmister</a> (<i>904 lines</i>).</li> 
+<li><b>EarleyBoyer</b><br>Classic Scheme benchmarks, translated to JavaScript by Florian Loitsch's Scheme2Js compiler (<i>4684 lines</i>).</li> 
+<li><b>RegExp</b><br>Regular expression benchmark generated by extracting regular expression operations from 50 of the most popular web pages
+(<i>1761 lines</i>).
+</li> 
+<li><b>Splay</b><br>Data manipulation benchmark that deals with splay trees and exercises the automatic memory management subsystem (<i>394 lines</i>).</li> 
+</ul>
+<div id="status"></div>
+<div id="results"></div>
+</body>
+</html>
