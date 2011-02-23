@@ -1,0 +1,6 @@
+Dynamic Taint Analysis in JavaScript
+
+Taint checking is a feature in some computer programming languages, such as Perl and Ruby, designed to increase security by preventing malicious users from executing commands on a host computer. Taint checks highlight specific security risks primarily associated with web sites which are attacked using techniques such as SQL injection or buffer overflow attack approaches.
+
+The concept behind taint checking is that any variable that can be modified by an outside user (for example a variable set by a field in a web form) poses a potential security risk. If that variable is used in an expression that sets a second variable, that second variable is now also suspicious.
+
