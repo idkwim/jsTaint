@@ -17,8 +17,8 @@ function String(s){
     var str = __String.concat.apply(s, arguments);
     str.__taint = this.__taint || arguments[0].__taint;
     if(!str.__taint && arguments.length > 1){
-      for(i in arguments){
-        str.__taint = i.__taint;
+      for(var i = 0, l = arguments.length; i < l; i++){
+      	      str.__taint = arguments[i].__taint;
         if(str.__taint)
           break;
       }
@@ -56,8 +56,8 @@ function String(s){
   this.match = function(regexp){
     var a = __String.match.apply(s,arguments);
     if(this.__taint){
-      for(i in a){
-        i.__taint = true;
+      for(var i = 0, l = a.length; i < l; i++){
+      	      a[i].__taint = true;
       }
     }
     return a;
@@ -80,8 +80,8 @@ function String(s){
   this.split = function(separator, limit){
     var a = __String.split.apply(s,arguments);
     if(this.__taint){
-      for(i in a){
-        i.__taint = true;
+      for(var i = 0, l = a.length; i < l; i++){
+      	      a[i].__taint = true;
       }
     }
     return a;
