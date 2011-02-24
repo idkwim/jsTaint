@@ -1,6 +1,45 @@
 Dynamic Taint Analysis in JavaScript
 
-Taint checking is a feature in some computer programming languages, such as Perl and Ruby, designed to increase security by preventing malicious users from executing commands on a host computer. Taint checks highlight specific security risks primarily associated with web sites which are attacked using techniques such as SQL injection or buffer overflow attack approaches.
+Homepage: http://tarunchaudhry.com/jsTaint
 
-The concept behind taint checking is that any variable that can be modified by an outside user (for example a variable set by a field in a web form) poses a potential security risk. If that variable is used in an expression that sets a second variable, that second variable is now also suspicious.
+Basic Usage:
+<script type="text/javascript" src="basic-taint.js"></script>
+<script type="text/javascript" src="tainting2-optimized.js"></script>
+var tainting = new Taint([<ID of form element to get>],[<Validate Functions>],[<Sync Functions>]);
 
+<input type="text" size="12" maxlength="36" id="fname">
+
+var fname = tainting.get("fname");
+fname.isTainted();
+fname.unTaint();
+fname.taint();
+fname = tainting.runValidation("fname", fname);
+tainting.runSync("fname",fname);
+For more detailed examples, please visit http://tarunchaudhry.com/jsTaint
+
+Taint checking is a feature in some computer programming languages, such as Perl
+and Ruby, designed to increase security by preventing malicious users from
+executing commands on a host computer. Taint checks highlight specific security
+risks primarily associated with web sites which are attacked using techniques
+such as SQL injection or buffer overflow attack approaches.
+
+The concept behind taint checking is that any variable that can be modified by 
+an outside user (for example a variable set by a field in a web form) poses a 
+potential security risk. If that variable is used in an expression that sets a 
+second variable, that second variable is now also suspicious.
+
+With the proliferation of web applications, it is necessary to validate all user
+input before using it on the server. If this doesn't happen, servers can easily 
+be compromised. Although all validataion of user input needs to happen on the 
+server, most applications do some basic validation on the user-side using 
+JavaScript. Furthurmore, most web applications ara JavaScript extensive and have
+hundreds, if not thousands, of variables. JsTaint is a library which implements
+Dynamic Taint Analysis in JavaScript.
+
+Homepage: http://tarunchaudhry.com/jsTaint
+
+Code is Copyright (c) 2011 Tarun Chaudhry
+
+LICENSE:
+GNU GPL v3
+See LICENSE.txt
