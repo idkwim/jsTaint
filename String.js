@@ -32,7 +32,7 @@ function String(s){
   }
   this.replace = function(regexp, newstr){
     return __String.replace.call(s, regexp, newstr);
-    
+  }
   this.search = function(regexp){
     return __String.search.call(s,regexp);
   }
